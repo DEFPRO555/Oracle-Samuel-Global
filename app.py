@@ -526,7 +526,7 @@ else:
 
             # Show preview
             with st.expander("Preview Raw Data", expanded=False):
-                st.dataframe(df.head(10), use_container_width=True)
+                st.dataframe(df.head(10), use_container_width=True, height=400)
 
             # Automatically clean and analyze data
             with st.spinner("Cleaning and processing data..."):
@@ -722,7 +722,7 @@ with tab1:
                 
                 # Show preview
                 with st.expander("Preview Raw Data"):
-                    st.dataframe(df.head(10))
+                    st.dataframe(df.head(10), use_container_width=True, height=400)
                 
                 # Clean data button
                 if st.button("Clean and Analyze Data", type="primary"):
@@ -837,7 +837,7 @@ with tab2:
         st.markdown("#### Retraining History")
         history_df = st.session_state.retrain_manager.get_retrain_history(10)
         if not history_df.empty:
-            st.dataframe(history_df, use_container_width=True)
+            st.dataframe(history_df, use_container_width=True, height=400)
         else:
             st.info("No retraining history yet")
     
@@ -860,7 +860,7 @@ with tab2:
             st.metric("Latest MAE", f"${latest['mae']:,.0f}")
             
             # Show table
-            st.dataframe(eval_history[['timestamp', 'model_name', 'mae', 'r2']], use_container_width=True)
+            st.dataframe(eval_history[['timestamp', 'model_name', 'mae', 'r2']], use_container_width=True, height=400)
         else:
             st.info("No evaluation history yet. Train a model first!")
     
@@ -1220,7 +1220,7 @@ with tab4:
         
         # Statistical summary
         st.subheader("Statistical Summary")
-        st.dataframe(df.describe(), width='stretch')
+        st.dataframe(df.describe(), use_container_width=True, height=400)
 
 # ===========================
 # TAB 5: PERFORMANCE TEST
@@ -1385,7 +1385,7 @@ with tab5:
             st.subheader("Training History")
             history_df = db.get_model_metrics()
             if not history_df.empty:
-                st.dataframe(history_df, width='stretch')
+                st.dataframe(history_df, use_container_width=True, height=400)
         
         else:
             st.info("👆 Train a model to see performance metrics and visualizations")
@@ -1564,7 +1564,7 @@ with tab6:
         st.markdown("#### Retraining History")
         history_df = st.session_state.retrain_manager.get_retrain_history(10)
         if not history_df.empty:
-            st.dataframe(history_df, width='stretch')
+            st.dataframe(history_df, use_container_width=True, height=400)
         else:
             st.info("No retraining history yet")
     
@@ -1587,7 +1587,7 @@ with tab6:
             st.metric("Latest MAE", f"${latest['mae']:,.0f}")
             
             # Show table
-            st.dataframe(eval_history[['timestamp', 'model_name', 'mae', 'r2']], width='stretch')
+            st.dataframe(eval_history[['timestamp', 'model_name', 'mae', 'r2']], use_container_width=True, height=400)
         else:
             st.info("No evaluation history yet. Train a model first!")
     
@@ -2009,9 +2009,9 @@ with tab6:
     # Integrity log
     st.markdown("#### Recent Integrity Checks")
     integrity_log = st.session_state.integrity_checker.get_integrity_log(5)
-    
+
     if not integrity_log.empty:
-        st.dataframe(integrity_log, width='stretch')
+        st.dataframe(integrity_log, use_container_width=True, height=400)
     else:
         st.info("No integrity checks performed yet")
     
