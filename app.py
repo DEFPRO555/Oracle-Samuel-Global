@@ -1173,7 +1173,7 @@ with tab4:
         
         # Data table
         st.subheader("Full Dataset")
-        st.dataframe(df, width='stretch', height=400)
+        st.dataframe(df, use_container_width=True, height=400)
         
         st.markdown("---")
         
@@ -1189,13 +1189,13 @@ with tab4:
         
         if price_col:
             # Price distribution
-            st.plotly_chart(viz.plot_price_distribution(price_col), width='stretch')
+            st.plotly_chart(viz.plot_price_distribution(price_col), use_container_width=True)
             
             # Correlation heatmap
             st.subheader("Feature Correlation Heatmap")
             heatmap = viz.plot_correlation_heatmap()
             if heatmap:
-                st.plotly_chart(heatmap, width='stretch')
+                st.plotly_chart(heatmap, use_container_width=True)
             
             # Scatter plots
             st.subheader("Relationship Analysis")
@@ -1210,13 +1210,13 @@ with tab4:
                                         index=numeric_cols.index(price_col) if price_col in numeric_cols else 1)
                 
                 if x_col and y_col:
-                    st.plotly_chart(viz.plot_scatter(x_col, y_col), width='stretch')
-            
+                    st.plotly_chart(viz.plot_scatter(x_col, y_col), use_container_width=True)
+
             # Box plot
             st.subheader("Distribution Analysis")
             selected_col = st.selectbox("Select column for box plot", numeric_cols)
             if selected_col:
-                st.plotly_chart(viz.plot_box_plot(selected_col), width='stretch')
+                st.plotly_chart(viz.plot_box_plot(selected_col), use_container_width=True)
         
         # Statistical summary
         st.subheader("Statistical Summary")
@@ -1323,7 +1323,7 @@ with tab5:
                 st.subheader("Feature Importance")
                 st.plotly_chart(
                     viz.plot_feature_importance(predictor.feature_importance),
-                    width='stretch'
+                    use_container_width=True
                 )
                 
                 st.markdown("#### Top 5 Most Important Features")
@@ -1368,10 +1368,10 @@ with tab5:
                         y_pred = y_test * 0.95 + np.random.normal(0, y_test.std() * 0.1, len(y_test))
 
                     # Actual vs Predicted
-                    st.plotly_chart(viz.plot_actual_vs_predicted(y_test, y_pred), width='stretch')
+                    st.plotly_chart(viz.plot_actual_vs_predicted(y_test, y_pred), use_container_width=True)
 
                     # Residuals
-                    st.plotly_chart(viz.plot_residuals(y_test, y_pred), width='stretch')
+                    st.plotly_chart(viz.plot_residuals(y_test, y_pred), use_container_width=True)
                     
                 except Exception as e:
                     st.warning(f"⚠️ Could not generate visualizations: {str(e)}")
@@ -1410,22 +1410,40 @@ with tab5:
         # Advanced Accuracy Enhancement
         if st.button("🎯 Advanced Accuracy Enhancement", key="accuracy_enhancement_btn"):
             if st.session_state.cleaned_df is not None:
-                with st.spinner("Running advanced accuracy enhancement..."):
-                    try:
-                        from simple_accuracy_enhancement import enhance_oracle_samuel_simple
-                        results = enhance_oracle_samuel_simple(st.session_state.cleaned_df)
-                        if results and results['best_model']:
-                            st.success("✅ Advanced accuracy enhancement completed!")
-                            st.success(f"🏆 Best Model: {results['best_model'][0].upper()}")
-                            st.success(f"📊 R² Score: {results['best_model'][1]['r2']:.4f}")
-                            st.success(f"📈 MAE: ${results['best_model'][1]['mae']:,.0f}")
-                            st.success(f"📉 RMSE: ${results['best_model'][1]['rmse']:,.0f}")
-                            st.success(f"📊 MAPE: {results['best_model'][1]['mape']:.2f}%")
-                            st.balloons()
-                        else:
-                            st.error("❌ Accuracy enhancement failed")
-                    except Exception as e:
-                        st.error(f"❌ Error: {str(e)}")
+                progress_placeholder = st.empty()
+                with progress_placeholder.container():
+                    with st.spinner("Running advanced accuracy enhancement... (This may take 30-60 seconds)"):
+                        try:
+                            import time
+                            start_time = time.time()
+
+                            # Import and run enhancement
+                            from simple_accuracy_enhancement import enhance_oracle_samuel_simple
+                            st.info("🔄 Testing multiple ML models...")
+                            results = enhance_oracle_samuel_simple(st.session_state.cleaned_df)
+
+                            elapsed_time = time.time() - start_time
+
+                            if results and results.get('best_model'):
+                                progress_placeholder.empty()
+                                st.success(f"✅ Advanced accuracy enhancement completed in {elapsed_time:.1f}s!")
+                                st.success(f"🏆 Best Model: {results['best_model'][0].upper()}")
+                                st.success(f"📊 R² Score: {results['best_model'][1]['r2']:.4f}")
+                                st.success(f"📈 MAE: ${results['best_model'][1]['mae']:,.0f}")
+                                st.success(f"📉 RMSE: ${results['best_model'][1]['rmse']:,.0f}")
+                                st.success(f"📊 MAPE: {results['best_model'][1]['mape']:.2f}%")
+                                st.balloons()
+                            else:
+                                progress_placeholder.empty()
+                                st.error("❌ Accuracy enhancement failed - No valid results")
+                        except ImportError as ie:
+                            progress_placeholder.empty()
+                            st.error(f"❌ Import Error: {str(ie)}")
+                            st.info("💡 Try using the individual features below (K-means, Logistic Regression)")
+                        except Exception as e:
+                            progress_placeholder.empty()
+                            st.error(f"❌ Error during enhancement: {str(e)}")
+                            st.info("💡 Try using the individual features below (K-means, Logistic Regression)")
             else:
                 st.warning("⚠️ Please upload and clean data first")
         
@@ -1508,7 +1526,7 @@ with tab5:
         if visualizations:
                 st.markdown("### 📊 Enhanced Visualizations")
                 for viz_name, fig in visualizations.items():
-                    st.plotly_chart(fig, width='stretch')
+                    st.plotly_chart(fig, use_container_width=True)
 
 # ===========================
 # TAB 6: VOICE & VISION TEST LAB
@@ -1959,7 +1977,7 @@ with tab6:
                         title=f'{region} Price Forecast',
                         labels={'price': 'Forecasted Price', 'date': 'Month'}
                     )
-                    st.plotly_chart(fig, width='stretch')
+                    st.plotly_chart(fig, use_container_width=True)
                     
                     # Metrics
                     col1, col2, col3 = st.columns(3)
