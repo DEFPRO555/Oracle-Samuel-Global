@@ -1,0 +1,189 @@
+# © 2025 Dowek Analytics Ltd.
+# Oracle Samuel - Prometheus Alert Rules
+
+groups:
+  - name: oracle_api_alerts
+    interval: 30s
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{status=~"5.."}[5m]) / 
+          rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+          dashboard: "https://grafana.oracle-samuel.com/d/api-overview"
+      
+      # API Latency High
+      - alert: HighAPILatency
+        expr: |
+          histogram_quantile(0.99, 
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 2
+        for: 10m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "API latency is high"
+          description: "99th percentile latency is {{ $value }}s (threshold: 2s)"
+      
+      # Service Down
+      - alert: ServiceDown
+        expr: up{job="oracle-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: backend
+        annotations:
+          summary: "Backend service is down"
+          description: "{{ $labels.instance }} has been down for more than 2 minutes"
+      
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: |
+          (container_memory_usage_bytes{pod=~"oracle-.*"} / 
+           container_spec_memory_limit_bytes{pod=~"oracle-.*"}) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage"
+          description: "{{ $labels.pod }} is using {{ $value | humanizePercentage }} of memory"
+      
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: |
+          rate(container_cpu_usage_seconds_total{pod=~"oracle-.*"}[5m]) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage"
+          description: "{{ $labels.pod }} CPU usage is at {{ $value | humanizePercentage }}"
+
+  - name: oracle_data_alerts
+    interval: 60s
+    rules:
+      # Model Performance Degradation
+      - alert: ModelPerformanceDegradation
+        expr: |
+          model_mae_score > 
+          model_mae_score offset 7d * 1.2
+        for: 1h
+        labels:
+          severity: warning
+          component: ml
+        annotations:
+          summary: "Model performance has degraded"
+          description: "MAE increased by >20% compared to last week: {{ $value }}"
+      
+      # Job Queue Buildup
+      - alert: JobQueueBuildup
+        expr: job_queue_length > 100
+        for: 15m
+        labels:
+          severity: warning
+          component: workers
+        annotations:
+          summary: "Job queue is building up"
+          description: "{{ $value }} jobs waiting in queue"
+      
+      # Database Connection Pool Exhausted
+      - alert: DBConnectionPoolExhausted
+        expr: |
+          pg_stat_activity_count / 
+          pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection pool near exhaustion"
+          description: "Using {{ $value | humanizePercentage }} of max connections"
+
+  - name: oracle_business_alerts
+    interval: 300s
+    rules:
+      # Prediction Volume Drop
+      - alert: PredictionVolumeDrop
+        expr: |
+          rate(predictions_total[1h]) < 
+          rate(predictions_total[1h] offset 1d) * 0.5
+        for: 1h
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Prediction volume dropped significantly"
+          description: "Current rate: {{ $value }}/s (50% drop from yesterday)"
+      
+      # User Feedback Score Low
+      - alert: LowUserFeedbackScore
+        expr: |
+          avg_over_time(user_feedback_rating[6h]) < 3
+        for: 2h
+        labels:
+          severity: warning
+          component: quality
+        annotations:
+          summary: "User feedback score is low"
+          description: "Average rating: {{ $value }}/5 over last 6 hours"
+
+  - name: oracle_infrastructure_alerts
+    interval: 60s
+    rules:
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} / 
+           node_filesystem_size_bytes{mountpoint="/"}) < 0.2
+        for: 10m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Disk space is running low"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining"
+      
+      # PostgreSQL Down
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is not responding"
+      
+      # Redis Down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache is not responding"
+      
+      # SSL Certificate Expiring
+      - alert: SSLCertificateExpiring
+        expr: |
+          probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 1h
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "Certificate expires in {{ $value | humanizeDuration }}"
+

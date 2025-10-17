@@ -1,0 +1,394 @@
+# © 2025 Dowek Analytics Ltd.
+# Oracle Samuel - CI/CD Pipeline
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ========================================
+  # TEST & LINT
+  # ========================================
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install -r frontend/requirements-frontend.txt
+          pip install pytest pytest-cov flake8 black mypy
+      
+      - name: Run Black (code formatting check)
+        run: black --check .
+        continue-on-error: true
+      
+      - name: Run Flake8 (linting)
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: true
+      
+      - name: Run MyPy (type checking)
+        run: mypy backend/main.py --ignore-missing-imports
+        continue-on-error: true
+      
+      - name: Run Tests
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml --cov-report=html
+        continue-on-error: true
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-oracle-samuel
+
+  # ========================================
+  # SECURITY SCAN
+  # ========================================
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ========================================
+  # BUILD & PUSH DOCKER IMAGES
+  # ========================================
+  build-backend:
+    name: Build Backend Image
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/oracle-backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  build-frontend:
+    name: Build Frontend Image
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/oracle-frontend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # ========================================
+  # DEPLOY TO GCP (Cloud Run)
+  # ========================================
+  deploy-gcp:
+    name: Deploy to GCP
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+      
+      - name: Pull and retag images for GCR
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ github.repository }}/oracle-backend:latest
+          docker pull ${{ env.REGISTRY }}/${{ github.repository }}/oracle-frontend:latest
+          docker tag ${{ env.REGISTRY }}/${{ github.repository }}/oracle-backend:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/oracle-backend:latest
+          docker tag ${{ env.REGISTRY }}/${{ github.repository }}/oracle-frontend:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/oracle-frontend:latest
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/oracle-backend:latest
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/oracle-frontend:latest
+      
+      - name: Deploy Backend to Cloud Run
+        run: |
+          gcloud run deploy oracle-backend \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/oracle-backend:latest \
+            --region ${{ secrets.GCP_REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --min-instances 2 \
+            --max-instances 10 \
+            --memory 2Gi \
+            --cpu 2 \
+            --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }},REDIS_URL=${{ secrets.REDIS_URL }} \
+            --set-secrets API_SECRET_KEY=api-secret-key:latest,OPENAI_API_KEY=openai-api-key:latest
+      
+      - name: Deploy Frontend to Cloud Run
+        run: |
+          gcloud run deploy oracle-frontend \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/oracle-frontend:latest \
+            --region ${{ secrets.GCP_REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --min-instances 2 \
+            --max-instances 5 \
+            --memory 1Gi \
+            --cpu 1 \
+            --set-env-vars BACKEND_URL=${{ secrets.BACKEND_URL }}
+
+  # ========================================
+  # DEPLOY TO AWS (ECS)
+  # ========================================
+  deploy-aws:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Pull and retag images for ECR
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ github.repository }}/oracle-backend:latest
+          docker pull ${{ env.REGISTRY }}/${{ github.repository }}/oracle-frontend:latest
+          docker tag ${{ env.REGISTRY }}/${{ github.repository }}/oracle-backend:latest ${{ steps.login-ecr.outputs.registry }}/oracle-backend:latest
+          docker tag ${{ env.REGISTRY }}/${{ github.repository }}/oracle-frontend:latest ${{ steps.login-ecr.outputs.registry }}/oracle-frontend:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/oracle-backend:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/oracle-frontend:latest
+      
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster oracle-samuel-cluster-production \
+            --service oracle-backend-service \
+            --force-new-deployment
+          
+          aws ecs wait services-stable \
+            --cluster oracle-samuel-cluster-production \
+            --services oracle-backend-service
+
+  # ========================================
+  # DEPLOY TO KUBERNETES
+  # ========================================
+  deploy-k8s:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+      
+      - name: Update Kubernetes deployments
+        run: |
+          kubectl set image deployment/oracle-backend \
+            backend=${{ env.REGISTRY }}/${{ github.repository }}/oracle-backend:latest \
+            -n oracle-samuel
+          
+          kubectl set image deployment/oracle-frontend \
+            frontend=${{ env.REGISTRY }}/${{ github.repository }}/oracle-frontend:latest \
+            -n oracle-samuel
+          
+          kubectl rollout status deployment/oracle-backend -n oracle-samuel
+          kubectl rollout status deployment/oracle-frontend -n oracle-samuel
+
+  # ========================================
+  # POST-DEPLOYMENT TESTS
+  # ========================================
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-gcp]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Health Check - Backend
+        run: |
+          curl -f ${{ secrets.BACKEND_URL }}/health || exit 1
+      
+      - name: Health Check - Frontend
+        run: |
+          curl -f ${{ secrets.FRONTEND_URL }}/_stcore/health || exit 1
+      
+      - name: API Test - Prediction Endpoint
+        run: |
+          curl -X POST ${{ secrets.BACKEND_URL }}/api/v1/predict \
+            -H "Authorization: Bearer ${{ secrets.API_SECRET_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"area":100,"rooms":3,"bedrooms":2,"bathrooms":1,"parking_spots":1,"floor":2,"animal":false,"furniture":false,"city":"Tel Aviv"}' \
+            -f || exit 1
+
+  # ========================================
+  # NOTIFY
+  # ========================================
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [smoke-tests]
+    if: always()
+    
+    steps:
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Deployment ${{ job.status }}
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
+      
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: Oracle Samuel - Deployment ${{ job.status }}
+          to: ${{ secrets.ALERT_EMAIL }}
+          from: Oracle Samuel CI/CD
+          body: |
+            Deployment completed with status: ${{ job.status }}
+            
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            
+            Backend URL: ${{ secrets.BACKEND_URL }}
+            Frontend URL: ${{ secrets.FRONTEND_URL }}
+        if: always()
+

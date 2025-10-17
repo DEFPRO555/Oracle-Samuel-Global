@@ -1,0 +1,21 @@
+# © 2025 Dowek Analytics Ltd.
+# Oracle Samuel - Helm Chart
+
+apiVersion: v2
+name: oracle-samuel
+description: AI-Powered Real Estate Analytics Platform
+type: application
+version: 1.0.0
+appVersion: "5.0.0"
+keywords:
+  - ai
+  - real-estate
+  - analytics
+  - machine-learning
+maintainers:
+  - name: Dowek Analytics
+    email: admin@dowekanalytics.com
+icon: https://oracle-samuel.com/icon.png
+sources:
+  - https://github.com/dowek-analytics/oracle-samuel
+

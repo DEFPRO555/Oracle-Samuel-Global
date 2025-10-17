@@ -1,0 +1,487 @@
+/* © 2025 Dowek Analytics Ltd. */
+/* ORACLE SAMUEL - PREMIUM $1M WEBSITE DESIGN */
+/* Luxury Enterprise Theme with Advanced Animations */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Premium Color Palette - Financial Trust + Innovation */
+    --primary-gold: #D4AF37;
+    --primary-blue: #0A1931;
+    --accent-emerald: #10b981;
+    --accent-sapphire: #3B82F6;
+    --dark-navy: #020617;
+    --light-gold: #F3E5AB;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #0A1931 0%, #1e3a8a 50%, #3B82F6 100%);
+    --gradient-gold: linear-gradient(135deg, #D4AF37 0%, #F3E5AB 100%);
+    --gradient-hero: linear-gradient(135deg, rgba(10, 25, 49, 0.95) 0%, rgba(59, 130, 246, 0.85) 100%);
+    --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --shadow-gold: 0 8px 32px rgba(212, 175, 55, 0.3);
+    --shadow-neon: 0 0 20px rgba(59, 130, 246, 0.5);
+    
+    /* Typography */
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+    --font-tech: 'Space Grotesk', sans-serif;
+}
+
+/* ===================================== */
+/* CINEMATIC HERO SECTION */
+/* ===================================== */
+
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    background: var(--dark-navy);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><defs><linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%230A1931;stop-opacity:0.95" /><stop offset="100%" style="stop-color:%233B82F6;stop-opacity:0.85" /></linearGradient></defs><rect width="1920" height="1080" fill="url(%23heroGrad)"/></svg>');
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+}
+
+/* Animated Particles Background */
+.hero-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, #D4AF37, transparent),
+        radial-gradient(1px 1px at 50% 50%, #3B82F6, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent);
+    background-size: 200% 200%;
+    animation: particlesFloat 20s ease-in-out infinite;
+    opacity: 0.3;
+}
+
+@keyframes particlesFloat {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 900;
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.5rem;
+    animation: titleGlow 3s ease-in-out infinite;
+    text-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+}
+
+@keyframes titleGlow {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+}
+
+.hero-subtitle {
+    font-family: var(--font-body);
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 3rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+/* ===================================== */
+/* PREMIUM GLASSMORPHIC CARDS */
+/* ===================================== */
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.glass-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-xl), var(--shadow-neon);
+    border-color: var(--accent-sapphire);
+}
+
+.glass-card:hover::before {
+    left: 100%;
+}
+
+/* ===================================== */
+/* PREMIUM IMAGE INTEGRATION */
+/* ===================================== */
+
+.section-image-overlay {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+.section-image-overlay img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.6s ease;
+}
+
+.section-image-overlay:hover img {
+    transform: scale(1.05);
+}
+
+.section-image-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(10, 25, 49, 0.7) 100%);
+    pointer-events: none;
+}
+
+/* Financial Analytics Section */
+.analytics-showcase {
+    background: var(--gradient-primary);
+    padding: 6rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.analytics-image {
+    border-radius: 24px;
+    box-shadow: var(--shadow-xl), 0 0 60px rgba(59, 130, 246, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Real Estate Section */
+.realestate-showcase {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 6rem 2rem;
+}
+
+.property-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.4s ease;
+}
+
+.property-card:hover {
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* AI Technology Section */
+.ai-tech-section {
+    background: var(--dark-navy);
+    padding: 6rem 2rem;
+    position: relative;
+}
+
+.ai-tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+/* ===================================== */
+/* PREMIUM BUTTONS */
+/* ===================================== */
+
+.btn-premium {
+    font-family: var(--font-body);
+    font-weight: 600;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-gold {
+    background: var(--gradient-gold);
+    color: var(--primary-blue);
+    box-shadow: var(--shadow-gold);
+}
+
+.btn-gold:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5);
+}
+
+.btn-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary-gold);
+}
+
+/* ===================================== */
+/* ANIMATED COUNTERS */
+/* ===================================== */
+
+.stats-counter {
+    font-family: var(--font-tech);
+    font-size: 3.5rem;
+    font-weight: 700;
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: countUp 2s ease-out;
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.stats-label {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+}
+
+/* ===================================== */
+/* PREMIUM DATA VISUALIZATIONS */
+/* ===================================== */
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-gold);
+    border-radius: 20px 20px 0 0;
+}
+
+/* ===================================== */
+/* SCROLL REVEAL ANIMATIONS */
+/* ===================================== */
+
+.reveal-fade-in {
+    opacity: 0;
+    transform: translateY(40px);
+    animation: revealFadeIn 0.8s ease-out forwards;
+}
+
+@keyframes revealFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reveal-slide-right {
+    opacity: 0;
+    transform: translateX(-60px);
+    animation: revealSlideRight 0.8s ease-out forwards;
+}
+
+@keyframes revealSlideRight {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    animation: revealScale 0.6s ease-out forwards;
+}
+
+@keyframes revealScale {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ===================================== */
+/* PREMIUM GRADIENT BORDERS */
+/* ===================================== */
+
+.gradient-border {
+    position: relative;
+    border-radius: 24px;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: var(--gradient-gold);
+    border-radius: 24px;
+    z-index: -1;
+    opacity: 0.8;
+}
+
+/* ===================================== */
+/* LUXURY HOVER EFFECTS */
+/* ===================================== */
+
+.luxury-hover {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.luxury-hover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--x) var(--y), rgba(212, 175, 55, 0.2), transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.luxury-hover:hover::after {
+    opacity: 1;
+}
+
+/* ===================================== */
+/* RESPONSIVE DESIGN */
+/* ===================================== */
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 3rem;
+    }
+    
+    .glass-card {
+        padding: 1.5rem;
+    }
+    
+    .stats-counter {
+        font-size: 2.5rem;
+    }
+}
+
+/* ===================================== */
+/* PREMIUM LOADING ANIMATION */
+/* ===================================== */
+
+.premium-loader {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(212, 175, 55, 0.3);
+    border-top-color: var(--primary-gold);
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===================================== */
+/* 3D CARD EFFECT */
+/* ===================================== */
+
+.card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+.card-3d:hover {
+    transform: perspective(1000px) rotateY(10deg) rotateX(5deg);
+}
+
+/* ===================================== */
+/* PREMIUM SECTION DIVIDERS */
+/* ===================================== */
+
+.section-divider {
+    height: 200px;
+    background: linear-gradient(180deg, transparent 0%, var(--primary-blue) 50%, transparent 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.divider-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%23D4AF37"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="%23D4AF37"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23D4AF37"/></svg>');
+    background-size: 50% 100%;
+    animation: waveMove 10s linear infinite;
+}
+
+@keyframes waveMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+

@@ -1,0 +1,163 @@
+# © 2025 Dowek Analytics Ltd.
+# Oracle Samuel - Helm Values
+
+# Global settings
+global:
+  environment: production
+  domain: oracle-samuel.com
+
+# Backend configuration
+backend:
+  replicaCount: 3
+  image:
+    repository: ghcr.io/dowek-analytics/oracle-backend
+    tag: latest
+    pullPolicy: Always
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 2Gi
+      cpu: 1000m
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  
+  env:
+    PORT: "8000"
+    WORKERS: "1"
+    LOG_LEVEL: "INFO"
+
+# Frontend configuration
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/dowek-analytics/oracle-frontend
+    tag: latest
+    pullPolicy: Always
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8501
+  
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    username: oracle
+    password: CHANGE_ME
+    database: oracle_db
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+        cpu: 1000m
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  
+  hosts:
+    - host: oracle-samuel.com
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: frontend
+    - host: api.oracle-samuel.com
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: backend
+  
+  tls:
+    - secretName: oracle-tls-cert
+      hosts:
+        - oracle-samuel.com
+        - api.oracle-samuel.com
+
+# Monitoring
+monitoring:
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+    adminPassword: CHANGE_ME
+
+# Secrets (use external secrets in production)
+secrets:
+  apiSecretKey: CHANGE_ME_MIN_32_CHARS
+  openaiApiKey: sk-CHANGE_ME
+  awsAccessKeyId: CHANGE_ME
+  awsSecretAccessKey: CHANGE_ME
+
+# Storage
+storage:
+  models:
+    size: 50Gi
+    storageClass: standard
+  uploads:
+    size: 100Gi
+    storageClass: standard
+
+# Feature flags
+features:
+  voice: true
+  vision: true
+  geo: true
+  autoRetrain: true
+

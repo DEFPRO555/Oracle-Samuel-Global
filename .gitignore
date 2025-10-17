@@ -1,0 +1,177 @@
+# © 2025 Dowek Analytics Ltd.
+# Oracle Samuel - Git Ignore Configuration
+# Excludes backups, data files, and non-essential files
+
+# ========================================
+# BACKUP FILES AND DIRECTORIES
+# ========================================
+backups/
+*_backup_*/
+*.backup
+*.bak
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ========================================
+# DATA FILES
+# ========================================
+*.xlsx
+*.xls
+*.csv
+*.json
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+
+# ========================================
+# PYTHON CACHE AND TEMP FILES
+# ========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ========================================
+# ENVIRONMENT AND CONFIG FILES
+# ========================================
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ========================================
+# IDE AND EDITOR FILES
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ========================================
+# LOGS AND TEMP FILES
+# ========================================
+*.log
+logs/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# ========================================
+# IMAGES AND MEDIA (except essential assets)
+# ========================================
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.svg
+*.webp
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# Keep essential assets
+!assets/
+!assets/**/*.css
+!assets/**/*.js
+!assets/**/*.html
+
+# ========================================
+# DOCKER AND DEPLOYMENT
+# ========================================
+.dockerignore
+docker-compose.override.yml
+*.dockerfile
+
+# ========================================
+# MONITORING AND METRICS
+# ========================================
+grafana-data/
+prometheus-data/
+*.metrics
+
+# ========================================
+# SECURITY AND KEYS
+# ========================================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+keys/
+certificates/
+github_config.py
+
+# ========================================
+# TESTING AND COVERAGE
+# ========================================
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# ========================================
+# JUPYTER NOTEBOOKS
+# ========================================
+.ipynb_checkpoints/
+*.ipynb
+
+# ========================================
+# MISC
+# ========================================
+*.orig
+*.rej
+.sass-cache/
+.cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json

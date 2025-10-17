@@ -1,0 +1,173 @@
+# © 2025 Dowek Analytics Ltd.
+# Oracle Samuel - Docker Compose Configuration
+# Local Development Environment
+
+version: "3.9"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: oracle-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-oracle}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
+      POSTGRES_DB: ${DB_NAME:-oracle_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-oracle}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oracle-network
+
+  # Redis for caching and task queue
+  redis:
+    image: redis:7-alpine
+    container_name: oracle-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oracle-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: oracle-backend
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-oracle}:${DB_PASSWORD:-change_me_in_production}@postgres:5432/${DB_NAME:-oracle_db}
+      REDIS_URL: redis://redis:6379
+      API_SECRET_KEY: ${API_SECRET_KEY:-dev_secret_key_change_in_production}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8501,http://frontend:8501}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./uploads:/app/uploads
+    networks:
+      - oracle-network
+
+  # Celery Worker (for background tasks)
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: oracle-worker
+    command: celery -A tasks worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-oracle}:${DB_PASSWORD:-change_me_in_production}@postgres:5432/${DB_NAME:-oracle_db}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./models:/app/models
+      - ./uploads:/app/uploads
+    networks:
+      - oracle-network
+
+  # Streamlit Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: oracle-frontend
+    env_file:
+      - .env
+    environment:
+      BACKEND_URL: http://backend:8000
+      DATABASE_URL: postgresql://${DB_USER:-oracle}:${DB_PASSWORD:-change_me_in_production}@postgres:5432/${DB_NAME:-oracle_db}
+    depends_on:
+      - backend
+    ports:
+      - "8501:8501"
+    networks:
+      - oracle-network
+
+  # Prometheus (Monitoring)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: oracle-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - oracle-network
+
+  # Grafana (Dashboards)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: oracle-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - oracle-network
+
+  # NGINX Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: oracle-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - oracle-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  oracle-network:
+    driver: bridge
+

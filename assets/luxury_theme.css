@@ -1,0 +1,426 @@
+/* © 2025 Dowek Analytics Ltd. - Oracle Samuel Luxury Theme */
+/* Enterprise-Level Premium Design System */
+
+/* ========================================
+   LUXURY COLOR PALETTE
+   ======================================== */
+:root {
+    --luxury-navy: #0A1628;
+    --luxury-gold: #D4AF37;
+    --luxury-silver: #C0C0C0;
+    --luxury-white: #FAFAFA;
+    --luxury-cream: #F5F5DC;
+    --accent-teal: #1E5F5F;
+    --accent-emerald: #10B981;
+    --shadow-luxury: 0 8px 32px rgba(212, 175, 55, 0.15);
+    --gradient-luxury: linear-gradient(135deg, #0A1628 0%, #1E5F5F 50%, #10B981 100%);
+    --gradient-gold: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+}
+
+/* ========================================
+   PREMIUM TYPOGRAPHY
+   ======================================== */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+.main {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(to bottom, #FAFAFA 0%, #F0F0F0 100%);
+    color: var(--luxury-navy);
+}
+
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--luxury-navy);
+}
+
+/* ========================================
+   HERO HEADER - LUXURY DESIGN
+   ======================================== */
+.luxury-hero {
+    background: var(--gradient-luxury);
+    padding: 60px 40px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-luxury);
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.luxury-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.luxury-hero h1 {
+    color: var(--luxury-gold);
+    font-size: 3.5em;
+    font-weight: 700;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.luxury-hero h3 {
+    color: var(--luxury-white);
+    font-size: 1.4em;
+    font-weight: 300;
+    margin: 15px 0 0 0;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================
+   PREMIUM SIDEBAR
+   ======================================== */
+.sidebar .sidebar-content {
+    background: linear-gradient(to bottom, var(--luxury-navy) 0%, #1E5F5F 100%);
+    color: var(--luxury-white);
+}
+
+.sidebar .sidebar-content h1,
+.sidebar .sidebar-content h2,
+.sidebar .sidebar-content h3 {
+    color: var(--luxury-gold);
+}
+
+/* ========================================
+   LUXURY CARDS & CONTAINERS
+   ======================================== */
+.stMetric {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stMetric:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25);
+}
+
+.stMetric label {
+    color: var(--luxury-navy);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85em;
+}
+
+.stMetric div[data-testid="stMetricValue"] {
+    color: var(--luxury-gold);
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+}
+
+/* ========================================
+   PREMIUM BUTTONS
+   ======================================== */
+.stButton > button {
+    background: var(--gradient-gold);
+    color: var(--luxury-navy);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 30px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
+    background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
+}
+
+.stButton > button[kind="primary"] {
+    background: var(--gradient-luxury);
+    color: var(--luxury-gold);
+}
+
+/* ========================================
+   ELEGANT TABS
+   ======================================== */
+.stTabs [data-baseweb="tab-list"] {
+    background: white;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: transparent;
+    border-radius: 10px;
+    padding: 15px 25px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: var(--luxury-navy);
+    transition: all 0.3s ease;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.stTabs [aria-selected="true"] {
+    background: var(--gradient-gold);
+    color: white;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+/* ========================================
+   PREMIUM INPUT FIELDS
+   ======================================== */
+.stTextInput > div > div > input,
+.stTextArea textarea,
+.stSelectbox > div > div {
+    background: white;
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.stTextInput > div > div > input:focus,
+.stTextArea textarea:focus {
+    border-color: var(--luxury-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+/* ========================================
+   LUXURY DATA TABLES
+   ======================================== */
+.stDataFrame {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stDataFrame thead tr th {
+    background: var(--gradient-luxury);
+    color: var(--luxury-gold);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 15px;
+}
+
+.stDataFrame tbody tr:nth-child(even) {
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.stDataFrame tbody tr:hover {
+    background: rgba(212, 175, 55, 0.1);
+    transition: all 0.2s ease;
+}
+
+/* ========================================
+   ELEGANT EXPANDERS
+   ======================================== */
+.streamlit-expanderHeader {
+    background: white;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--luxury-navy);
+}
+
+.streamlit-expanderHeader:hover {
+    background: rgba(212, 175, 55, 0.05);
+    border-color: var(--luxury-gold);
+}
+
+/* ========================================
+   PREMIUM CHARTS
+   ======================================== */
+.js-plotly-plot {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ========================================
+   LUXURY ALERTS & MESSAGES
+   ======================================== */
+.stAlert {
+    border-radius: 12px;
+    border: none;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.stSuccess {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+}
+
+.stWarning {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: white;
+}
+
+.stError {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+}
+
+.stInfo {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: white;
+}
+
+/* ========================================
+   ELEGANT PROGRESS BARS
+   ======================================== */
+.stProgress > div > div {
+    background: var(--gradient-gold);
+    border-radius: 10px;
+}
+
+/* ========================================
+   PREMIUM FILE UPLOADER
+   ======================================== */
+.stFileUploader {
+    background: white;
+    border: 2px dashed rgba(212, 175, 55, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
+.stFileUploader:hover {
+    border-color: var(--luxury-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+/* ========================================
+   LUXURY FOOTER
+   ======================================== */
+.luxury-footer {
+    background: var(--luxury-navy);
+    color: var(--luxury-gold);
+    padding: 40px;
+    border-radius: 20px;
+    margin-top: 60px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+}
+
+.luxury-footer p {
+    margin: 5px 0;
+    color: var(--luxury-white);
+}
+
+.luxury-footer strong {
+    color: var(--luxury-gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2em;
+}
+
+/* ========================================
+   PREMIUM SCROLLBAR
+   ======================================== */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F0F0F0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gradient-gold);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .luxury-hero h1 {
+        font-size: 2.5em;
+    }
+    
+    .luxury-hero h3 {
+        font-size: 1.1em;
+    }
+    
+    .luxury-hero {
+        padding: 40px 20px;
+    }
+}
+
+/* ========================================
+   ANIMATION & TRANSITIONS
+   ======================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.element-container {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* ========================================
+   PREMIUM BADGES
+   ======================================== */
+.luxury-badge {
+    display: inline-block;
+    background: var(--gradient-gold);
+    color: var(--luxury-navy);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+/* ========================================
+   ENTERPRISE LOGO STYLING
+   ======================================== */
+.luxury-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2em;
+    font-weight: 700;
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    padding: 20px;
+}
+

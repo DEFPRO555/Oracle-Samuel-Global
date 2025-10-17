@@ -1,0 +1,11 @@
+# © 2025 Dowek Analytics Ltd.
+# Oracle Samuel - Kubernetes Namespace
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: oracle-samuel
+  labels:
+    app: oracle-samuel
+    environment: production
+
